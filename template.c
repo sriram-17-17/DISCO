@@ -304,7 +304,74 @@ int distance(Graph* g, int city_x, int city_y) {
  * Return the index of any one possible railway capital in the network
 */
 int railway_capital(Graph* g) {
-    
+    int** distance = (int**)malloc(g->n * sizeof(int*));
+    for(int i = 0; i < g->n; i++) {
+        distance[i] = calloc(g->n, sizeof(int));
+    }
+
+    //distance= W_k and prev= W_(k-1)
+    int** prev = (int**)malloc(g->n * sizeof(int*));
+    for(int i = 0; i < g->n; i++) {
+        prev[i] = calloc(g->n, sizeof(int));
+    }
+
+    //initializing adjacency values in the distance
+    for(int i = 0; i<g->n; i++){
+        for(int j = 0; j<g->n; j++){
+            if(g->adj[i][j]){
+                distance[i][j]=g->adj[i][j];
+                prev[i][j]=g->adj[i][j];
+            }
+            else{
+                distance[i][j]=100000;
+                prev[i][j]=100000;               
+            }
+
+        }
+    }
+
+    //warshall's algorithm
+    for(int k = 0; k<g->n;k++){
+        for(int i = 0; i<g->n; i++){
+            for(int j = 0; j<g->n; j++){
+                int dist1=prev[i][j];
+                int dist2=prev[i][k] + prev[k][j];
+
+                if(dist1<=dist2)
+                    distance[i][j]=dist1;
+                else
+                    distance[i][j]=dist2;
+            }
+        }
+
+        for(int i = 0; i<g->n; i++){
+            for(int j = 0; j<g->n; j++){
+                prev[i][j]=distance[i][j];
+            }
+        }
+
+
+    }
+
+    // Filling the sumOfDistances matrix
+    int sumOfDistances[g->n];
+    for(int k = 0; k < g-> n; k++){
+        for(int h = 0; h < g -> n; h++){
+            sumOfDistances[k] += distance[k][h];
+        }
+    } 
+
+    // Finding the minimum distance from the sumOfDistance array
+
+    int capital = 0;
+
+    for(int i = 0; i < g-> n; i++){
+        if(sumOfDistances[capital] > sumOfDistances[i]){
+            capital = i;
+        }
+    }
+
+    return capital;
 }
 
 /**

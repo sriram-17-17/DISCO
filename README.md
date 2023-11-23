@@ -1,2 +1,18 @@
 # DISCO
 This is our discrete structures assignment
+Question 1:
+Each row in the adjacency matrix of the Graph 'g' lists out each edge (tracks) connected to the index of that row in the form of 1s and 0s. So if we calculate the sums of each ith row of the matrix, we get the number of stations connected to the i'th station. On checking if sum is >=4, we increment the junctions variable.
+
+Question 2:
+for a)We essentially need to check if the graph consists of a Euler Circuit (i.e a path that starts and ends on the same vertex while going through each edge exactly once). And the condition for a Euler circuit is if each vertex in the graph is even (i.e. divisible by 2). So we assumed an Euler circuit and ran a nested loop to iterate over each vertex in the adjacency matrix. The moment we come across a vertex with an odd degree, we break out of the loop and assign a false value to the 
+
+Question 4:
+In this function, we will iterate over every edge in the graph and compare the transitive closure of the new graph with the original graph. If there is no change in the transitive closure, that means that the deleted edge was not a vital path, and the connectivity of the new graph is the same as the connectivity of the old graph. If the closures don't match, we'll break out of the nested loops and increment the vital_edges variable. 
+We've created a 2D matrix closure containing the transitive closure of the adjacency matrix, which basically consists of pairs of elements with a path of at least length equal to one. We've created another variable that will contain the transitive closure of the graph, one edge removed at a time. The pairs variable has been initialized to 0 and will be incremented every time a vital edge is encountered.  
+  On iterating over each element in the adjacency matrix, we check if it's equal to one i.e., if an edge between the i'th and j'th element exists. If it exists, we temporarily delete it by changing the value to 0 and calculating and storing the transitive closure in 'removedEdge'. An int flag 'same' is assumed to be true, and the removedEdge closure and original closure are compared one element at a time. If an element is not equal, the flag is set to false, thus breaking out of the loop and incrementing the number of vital edges. At the end of the loop, the deleted edges are added back and the outer loops continue. Finally, the number of vital edges (pairs) is returned. 
+
+Question 5:
+Labeling a station as either 'restaurant' or 'maintenance depot' boils down to a graph coloring problem with two colors (0 and 1). The color matrix upgrades[n] is the list of colors for each vertex in the graph. The matrix is initialized with -1 to signify an 'uncolored' state for each vertex. We assume the first vertex is colored with '0' and create a flag called 'valid', which contains if the coloring is possible. 'valid' is initialized to true. 
+    On iterating over the adjacency matrix starting from row '1' (since '0' is already colored), we check if an edge exists, and we'll check the color of the incident vertex 'j' apart from the row vertex 'i'. First 'j' is checked if it's colored or not by retrieving its value from the upgrades matrix. If it's -1 (uncolored), then we assign the complement of the color of the vertex 'i' by ' !upgrades[i] '. Else if 'j' is already colored, we'll check if it's truly the complement of 'i'. If their colors turn out to be the same, then it's impossible to color the graph with two colors thus, we set the flag 'valid' to false, and after the loops, we set each vertex to -1 in upgrades, indicating that it's not possible to color it. 
+
+Question 6:

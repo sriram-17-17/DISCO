@@ -1,6 +1,6 @@
 # DISCO
 This is our discrete structures assignment
-Question 1:
+Question 1: <br>
 Each row in the adjacency matrix of the Graph 'g' lists out each edge (tracks) connected to the index of that row in the form of 1s and 0s. So if we calculate the sums of each ith row of the matrix, we get the number of stations connected to the i'th station. On checking if sum is >=4, we increment the junctions variable.
 
 Question 2:
@@ -16,3 +16,4 @@ Labeling a station as either 'restaurant' or 'maintenance depot' boils down to a
     On iterating over the adjacency matrix starting from row '1' (since '0' is already colored), we check if an edge exists, and we'll check the color of the incident vertex 'j' apart from the row vertex 'i'. First 'j' is checked if it's colored or not by retrieving its value from the upgrades matrix. If it's -1 (uncolored), then we assign the complement of the color of the vertex 'i' by ' !upgrades[i] '. Else if 'j' is already colored, we'll check if it's truly the complement of 'i'. If their colors turn out to be the same, then it's impossible to color the graph with two colors thus, we set the flag 'valid' to false, and after the loops, we set each vertex to -1 in upgrades, indicating that it's not possible to color it. 
 
 Question 6:
+In this question, we modify the Warshall's algorithm used in Question 3 to get the matrix of all the shortest paths between each pair of vertices in the graph and then finally return the desired path from the matrix using the function arguments.

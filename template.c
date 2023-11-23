@@ -1,11 +1,11 @@
 /**
  * Group ID - 
- * Member 1 Name - 
- * Member 1 BITS ID - 
- * Member 2 Name - 
- * Member 2 BITS ID - 
- * Member 3 Name - 
- * Member 3 BITS ID - 
+ * Member 1 Name - Sriram Sudheer Hebbale
+ * Member 1 BITS ID - 2022A7PS0147P
+ * Member 2 Name - Siddhartha Gotur
+ * Member 2 BITS ID - 2022A7PS0070P
+ * Member 3 Name - Granth Jain
+ * Member 3 BITS ID - 2022A7PS0172P
 */
 
 // ---------------------------DO NOT MODIFY (Begin)------------------------------
@@ -20,25 +20,6 @@ typedef struct Graph {
     int** adj; // Adjacency matrix
     char** station_names; // Array of station names
 } Graph;
-
-//deleted this code later
-void printGraphMatrix(Graph *g){
-    for(int i = 0; i<g->n; i++){
-        for(int j = 0; j<g->n; j++){
-            printf("%d\t",g->adj[i][j]);
-        }
-        printf("\n");
-    }
-}
-
-void printMatrix(int** matrix, int size){
-    for(int i = 0; i<size; i++){
-        for(int j = 0; j<size; j++){
-            printf("%d\t",matrix[i][j]);
-        }
-        printf("\n");
-    }
-}
 
 /**
  * This function has been pre-filled. It reads the input testcase 
@@ -79,13 +60,15 @@ Graph* create_graph(char input_file_path[]) {
 */
 int find_junctions(Graph* g) {
     int junctions = 0;
-    int sum=0;
+    int station_count = 0;
     for(int i = 0; i<g->n; i++){
-        sum=0;
+        station_count = 0;
         for(int j = 0; j<g->n; j++){
-            sum+=g->adj[i][j];
+            if ((i != j) && (g -> adj[i][j])) {
+                station_count++;
+            }
         }
-        if(sum>=4){
+        if(station_count >= 4){
             junctions+=1;
         }
     }
@@ -101,9 +84,48 @@ int find_junctions(Graph* g) {
  * If false, then question 2(b) must be solved.
 */
 bool sheldons_tour(Graph* g, bool SAME_STATION) {
-    //finding euler circuit/path of the graph
-}
+    int** connections = g -> adj; 
+    int station_count = 0;
+    if (SAME_STATION){
+        for(int i = 0; i < g-> n; i++){
+            for (int j = 0; j < g-> n; j++){
+                if(connections[i][j]){
+                    station_count++;
+                }
+            }
+            if (station_count % 2 != 0){
+                return false;
+            }
 
+            station_count = 0;
+        }
+
+        return true;
+    }
+    else{
+        int odd_count= 0;
+        for(int i = 0; i < g -> n; i++){
+            for(int j = 0; j < g-> n ; j++){
+                if (connections[i][j]){
+                    station_count++;
+                }
+            }
+
+            if (station_count % 2 != 0){
+                odd_count++;
+            }
+
+            station_count = 0;
+        }
+
+        if (odd_count == 2){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+}
 /**
  * Q.3
  * Return closure, an n * n matrix filled with 0s and 1s as required. 
@@ -115,41 +137,25 @@ int** warshall(Graph* g) {
         closure[i] = calloc(g->n, sizeof(int));
     }
 
-    //closure= W_k and prev= W_(k-1)
-    int** prev = (int**)malloc(g->n * sizeof(int*));
-    for(int i = 0; i < g->n; i++) {
-        prev[i] = calloc(g->n, sizeof(int));
-    }
-
-    //initializing adjacency values in the closure
-    for(int i = 0; i<g->n; i++){
-        for(int j = 0; j<g->n; j++){
-            closure[i][j]=g->adj[i][j];
-            prev[i][j]=g->adj[i][j];
-
-        }
-    }
-
-    //warshall's algorithm
-    for(int k = 0; k<g->n;k++){
-        for(int i = 0; i<g->n; i++){
-            for(int j = 0; j<g->n; j++){
-                if(prev[i][j] || (prev[i][k]&&prev[k][j])){
-                    closure[i][j]=1;
-                }
-            }
-        }
-
-        for(int i = 0; i<g->n; i++){
-            for(int j = 0; j<g->n; j++){
-                prev[i][j]=closure[i][j];
-            }
-        }
-
-
-    }
-
     // Code goes here
+
+    //Populating closure
+
+    for(int i = 0; i < g -> n; i++){
+        for (int j = 0; j < g-> n; j++){
+            closure[i][j] = g -> adj[i][j];
+        }
+    }
+    
+    // Appplying warshall's algorithm on closure to obtain the transitive closure of the adjacency matrix
+    for(int k = 0; k < g-> n; k++){
+        for(int j = 0; j < g-> n; j++){
+            for(int i = 0; i < g->n; i++){
+                closure[i][j] = closure[i][j] || (closure[i][k] && closure[k][j]);
+
+            }
+        }
+    }
     
     return closure; // Do not modify
 }
@@ -159,7 +165,19 @@ int** warshall(Graph* g) {
  * Return the number of impossible pairs.
 */
 int find_impossible_pairs(Graph* g) {
-    
+    int** closure = warshall(g); // Do not modify
+
+    int impossible_pairs = 0;
+
+    for (int i = 0; i < g->n; i++){
+        for(int j = 0; j < g->n; j++){
+            if(closure[i][j] == 0 && (i > j)){
+                impossible_pairs++;
+            }
+        } 
+    }
+
+    return impossible_pairs;
 }
 
 /**
@@ -179,9 +197,9 @@ int find_vital_train_tracks(Graph* g) {
                 removedEdge = warshall(g);
 
                 int same = 1;
-                for(int k=0; ((k<g->n) && same);k++){    
-                    for(int z = 0; (z<(g->n) && same);z++){
-                        if(removedEdge[k][z]!=closure[k][z]){
+                for(int k=0; ((k < g -> n) && same);k++){    
+                    for(int z = 0; (z < (g -> n) && same);z++){
+                        if(removedEdge[k][z] != closure[k][z]){
                             pairs++;
                             same=0;
                         }
@@ -196,7 +214,6 @@ int find_vital_train_tracks(Graph* g) {
     }
     return pairs;
 }
-
 /**
  * Q.5
  * Return upgrades, an array of size n.
@@ -210,30 +227,31 @@ int* upgrade_railway_stations(Graph* g) {
 
     //intializing colored to an invalid color
     for(int i = 0; i<g->n; i++){
-        upgrades[i]=-1;
+        upgrades[i] = -1;
     }
 
-    upgrades[0]=0;
+    // Code goes here
+    upgrades[0] = 0;
 
     int valid = 1;
 
-    for(int i = 1; i<g->n; i++){
-        for(int j = 0; j<g->n; j++){
+    for(int i = 1; i < g -> n; i++){
+        for(int j = 0; j < g -> n; j++){
             //checking validity
-            if(g->adj[i][j]){
-                if(upgrades[i]==-1)
-                    upgrades[i]=!upgrades[j];
+            if(g -> adj[i][j]){
+                if(upgrades[i] == -1)
+                    upgrades[i] = !upgrades[j];
 
-                else if(upgrades[i]==upgrades[j])
-                    valid=0;
+                else if(upgrades[i] == upgrades[j])
+                    valid = 0;
             }
         }
     }
-    // Code goes here
+    
     if(!valid){
         for(int i = 0; i<g->n; i++){
-        upgrades[i]=-1;
-    }
+        upgrades[i] = -1;
+        }
     }
 
     return upgrades; // Do not modify
@@ -245,7 +263,7 @@ int* upgrade_railway_stations(Graph* g) {
  * city_x is the index of X, city_y is the index of Y
 */
 int distance(Graph* g, int city_x, int city_y) {
-    // Do not modify or delete pre-filled code!
+
     int** distance = (int**)malloc(g->n * sizeof(int*));
     for(int i = 0; i < g->n; i++) {
         distance[i] = calloc(g->n, sizeof(int));
@@ -253,20 +271,20 @@ int distance(Graph* g, int city_x, int city_y) {
 
     //distance= W_k and prev= W_(k-1)
     int** prev = (int**)malloc(g->n * sizeof(int*));
-    for(int i = 0; i < g->n; i++) {
+    for(int i = 0; i < g-> n; i++) {
         prev[i] = calloc(g->n, sizeof(int));
     }
 
     //initializing adjacency values in the distance
     for(int i = 0; i<g->n; i++){
         for(int j = 0; j<g->n; j++){
-            if(g->adj[i][j]){
-                distance[i][j]=g->adj[i][j];
-                prev[i][j]=g->adj[i][j];
+            if(g -> adj[i][j]){
+                distance[i][j] = g-> adj[i][j];
+                prev[i][j] = g-> adj[i][j];
             }
             else{
-                distance[i][j]=100000;
-                prev[i][j]=100000;               
+                distance[i][j] = -1;
+                prev[i][j] = -1;               
             }
 
         }
@@ -277,12 +295,24 @@ int distance(Graph* g, int city_x, int city_y) {
         for(int i = 0; i<g->n; i++){
             for(int j = 0; j<g->n; j++){
                 int dist1=prev[i][j];
-                int dist2=prev[i][k] + prev[k][j];
+                int dist2;
 
-                if(dist1<=dist2)
-                    distance[i][j]=dist1;
-                else
-                    distance[i][j]=dist2;
+                if (prev[i][k] == -1 || prev[k][j] == -1){
+                    distance[i][j] = dist1;
+                }
+                else if (dist1 == -1){
+                    dist2 = prev[i][k] + prev[k][j];
+                    distance[i][j] = dist2;
+                }
+                else{
+                    dist2 = prev[i][k] + prev[k][j];
+                    if (dist1 <= dist2) {
+                        distance[i][j] = dist1;
+                    }
+                    else {
+                        distance[i][j] = dist2;
+                    }
+                }
             }
         }
 
@@ -295,7 +325,6 @@ int distance(Graph* g, int city_x, int city_y) {
 
     }
 
-    printMatrix(distance,g->n);    
     return distance[city_x][city_y];
 }
 
@@ -304,6 +333,7 @@ int distance(Graph* g, int city_x, int city_y) {
  * Return the index of any one possible railway capital in the network
 */
 int railway_capital(Graph* g) {
+
     int** distance = (int**)malloc(g->n * sizeof(int*));
     for(int i = 0; i < g->n; i++) {
         distance[i] = calloc(g->n, sizeof(int));
@@ -311,20 +341,20 @@ int railway_capital(Graph* g) {
 
     //distance= W_k and prev= W_(k-1)
     int** prev = (int**)malloc(g->n * sizeof(int*));
-    for(int i = 0; i < g->n; i++) {
+    for(int i = 0; i < g-> n; i++) {
         prev[i] = calloc(g->n, sizeof(int));
     }
 
     //initializing adjacency values in the distance
     for(int i = 0; i<g->n; i++){
         for(int j = 0; j<g->n; j++){
-            if(g->adj[i][j]){
-                distance[i][j]=g->adj[i][j];
-                prev[i][j]=g->adj[i][j];
+            if(g -> adj[i][j]){
+                distance[i][j] = g-> adj[i][j];
+                prev[i][j] = g-> adj[i][j];
             }
             else{
-                distance[i][j]=100000;
-                prev[i][j]=100000;               
+                distance[i][j] = -1;
+                prev[i][j] = -1;               
             }
 
         }
@@ -335,12 +365,24 @@ int railway_capital(Graph* g) {
         for(int i = 0; i<g->n; i++){
             for(int j = 0; j<g->n; j++){
                 int dist1=prev[i][j];
-                int dist2=prev[i][k] + prev[k][j];
+                int dist2;
 
-                if(dist1<=dist2)
-                    distance[i][j]=dist1;
-                else
-                    distance[i][j]=dist2;
+                if (prev[i][k] == -1 || prev[k][j] == -1){
+                    distance[i][j] = dist1;
+                }
+                else if (dist1 == -1){
+                    dist2 = prev[i][k] + prev[k][j];
+                    distance[i][j] = dist2;
+                }
+                else{
+                    dist2 = prev[i][k] + prev[k][j];
+                    if (dist1 <= dist2) {
+                        distance[i][j] = dist1;
+                    }
+                    else {
+                        distance[i][j] = dist2;
+                    }
+                }
             }
         }
 
@@ -353,11 +395,13 @@ int railway_capital(Graph* g) {
 
     }
 
-    // Filling the sumOfDistances matrix
     int sumOfDistances[g->n];
     for(int k = 0; k < g-> n; k++){
+        sumOfDistances[k] = 0;
         for(int h = 0; h < g -> n; h++){
-            sumOfDistances[k] += distance[k][h];
+            if (distance[k][h] != -1){
+                sumOfDistances[k] += distance[k][h];
+            }
         }
     } 
 
@@ -371,15 +415,40 @@ int railway_capital(Graph* g) {
         }
     }
 
+    for(int i = 0; i < g-> n; i++){
+        printf("%d\t", sumOfDistances[i]);
+    }
+
     return capital;
 }
+    
+
 
 /**
  * Helper function for Q.8
 */
 bool maharaja_express_tour(Graph* g, int source, int current_city, int previous_city, int* visited) {
-    
-}
+
+    visited[current_city] = 1;
+
+    if (g -> adj[current_city][source] && previous_city != source){
+        return true;
+    }
+    else {
+        for(int j = 0; j < g-> n; j++){
+            if (g -> adj[current_city][j] && j!= previous_city && !visited[j]){
+               if(maharaja_express_tour(g, source, j, current_city, visited)){
+                    return true;
+               }
+               else {
+                    visited[j] = 0;
+               }
+            }   
+        }
+        return false;
+    }
+     
+}   
 
 /**
  * Q.8 
@@ -391,32 +460,14 @@ bool maharaja_express(Graph* g, int source) {
     for(int i = 0; i < g->n; i++) {
         visited[i] = 0;
     }
+
     // Hint: Call the helper function and pass the visited array created here.
+
+    return maharaja_express_tour(g, source, source, source , visited);
 }
 
 int main() {
     char input_file_path[100] = "testcase_1.txt"; // Can be modified
     Graph* g = create_graph(input_file_path); // Do not modify
-    // printf("The railway network has %d junctions\n",find_junctions(g));
-    // printf("Adjacency list: \n");
-    // printGraphMatrix(g);
-    // printf("\nTransitive closure\n");
-    // printMatrix(warshall(g),g->n);
-    // printf("\nAdjacency matrix: \n");
-    // printGraphMatrix(g);
-
-    // printf("Upgrade matrix:\n");
-    // int* upgrade = upgrade_railway_stations(g);
-
-    // for(int i = 0; i<g->n; i++){
-    //     printf("%d\t",upgrade[i]);
-    // }
-
-    printf("%d ",distance(g,0,0));
-
-
-
-    // Code goes here
-
     return 0;
 }
